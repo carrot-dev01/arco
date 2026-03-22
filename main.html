@@ -131,8 +131,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .metro-start:hover:not(.on){border-color:var(--accent);color:var(--accent);}
 
 /* 비트 플래시 바 */
-#beat-flash{position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);opacity:0;pointer-events:none;z-index:1000;transition:opacity .04s;}
-#beat-flash.lit{opacity:.85;}
+.metro-flash{transition:box-shadow .08s,border-color .08s;}
+.metro-flash.lit-strong{border-color:var(--accent)!important;box-shadow:0 0 0 1.5px var(--accent);}
+.metro-flash.lit-weak{border-color:var(--accdim)!important;box-shadow:0 0 0 1px var(--accdim);}
 
 /* Play 화면 */
 #play-cards{display:flex;flex-direction:column;flex:1;min-height:0;gap:var(--gap);width:100%;max-width:340px;}
@@ -528,7 +529,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   </div>
 </div>
 
-<div id="beat-flash"></div>
 <div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
 <script>
@@ -790,7 +790,7 @@ function getTotalTicks(){return S.subDiv==='d'?S.timeSig*2:S.timeSig*S.subDiv;}
 function scheduleClick(time,tick){
   if(!A.micAC)return;const osc=A.micAC.createOscillator(),gain=A.micAC.createGain();osc.connect(gain);gain.connect(A.micAC.destination);
   let freq,vol;if(S.subDiv==='d'){const b1=tick===0,bs=tick%2===0;freq=b1?1500:bs?1000:700;vol=b1?.6:bs?.38:.16;}else{const b1=tick===0,ib=tick%S.subDiv===0;freq=b1?1500:ib?1000:700;vol=b1?.6:ib?.38:.16;}
-  vol*=_metroVol/.6; // 볼륨 슬라이더 반영
+  vol=Math.min(1,vol*(_metroVol/.6)); // 볼륨 슬라이더 반영 (클리핑 방지)
   gain.gain.setValueAtTime(vol,time);gain.gain.exponentialRampToValueAtTime(.001,time+.04);osc.frequency.value=freq;osc.onended=()=>{osc.disconnect();gain.disconnect();};osc.start(time);osc.stop(time+CONFIG.metro.clickDurS);
   const dl=Math.max(0,(time-A.micAC.currentTime)*1000);
   setTimeout(()=>{litBeat(tick);flashBeat(tick);},dl);
@@ -802,9 +802,15 @@ function stopMetro(){S.metroPlaying=false;clearTimeout(A.metroTimer);updateMetro
 function toggleMetro(){if(!A.micAC){toast('마이크를 먼저 켜주세요');return;}S.metroPlaying?stopMetro():startMetro();}
 function updateMetroBtn(on){['metro-start-p','metro-start-tm'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=on?'Stop<br>Metronome':'Start<br>Metronome';el.classList.toggle('on',on);});}
 function flashBeat(tick){
-  const el=document.getElementById('beat-flash');if(!el)return;
-  el.classList.add('lit');
-  clearTimeout(el._ft);el._ft=setTimeout(()=>el.classList.remove('lit'),tick===0?120:80);
+  const cards=document.querySelectorAll('#metro-card,#play-metro-card');
+  const strong=tick===0;
+  cards.forEach(c=>{
+    c.classList.add('metro-flash');
+    c.classList.remove('lit-strong','lit-weak');
+    c.classList.add(strong?'lit-strong':'lit-weak');
+    clearTimeout(c._ft);
+    c._ft=setTimeout(()=>c.classList.remove('lit-strong','lit-weak'),strong?150:100);
+  });
 }
 
 let _bpmDebounce=null;
