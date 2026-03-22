@@ -722,6 +722,7 @@ function frame(){
       if(fftPass&&detFreq){noteEl.textContent=noteStr(detFreq);noteEl.classList.add('show');}
       refresh();
     } else {
+      if (sessSec > 0) sessSec = 0;  // 연주 끊기면 연속 리셋
       sdot.className='mic';
       stxt.textContent='연주를 시작하세요';
       noteEl.classList.remove('show');
