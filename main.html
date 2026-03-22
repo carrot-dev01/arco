@@ -110,12 +110,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .bd.beat{width:11px;height:11px;}.bd.subdiv{width:6px;height:6px;}
 .bd.lit-a{background:var(--accent);transform:scale(1.35);}.bd.lit-b{background:var(--accent);transform:scale(1.15);}.bd.lit-s{background:var(--accdim);transform:scale(1.1);}
 .metro-bpm-row{display:flex;align-items:center;gap:6px;}
+.bpm-num-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .bpm-num-el{font-family:'DM Mono',monospace;font-size:36px;color:var(--text);line-height:1;min-width:64px;text-align:center;cursor:ns-resize;user-select:none;touch-action:none;}
+.bpm-hint{font-size:9px;color:var(--muted);opacity:.5;letter-spacing:.02em;user-select:none;}
 .metro-adj{display:flex;align-items:center;gap:4px;flex:1;}
 .adj-btn{flex:1;height:44px;padding:0;background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
 .adj-btn:hover{border-color:var(--accent);color:var(--accent);}
 .tap-btn{flex:0 0 58px;height:44px;padding:0 3px;background:transparent;border:.5px solid var(--border);border-radius:7px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:8.5px;cursor:pointer;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;white-space:nowrap;transition:border-color .15s,color .15s;}
 .tap-btn:hover{border-color:var(--accent);color:var(--accent);}
+.metro-vol-row{display:flex;align-items:center;gap:8px;}
+.metro-vol-lbl{font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;}
 .metro-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;align-items:stretch;}
 .ts-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
 .sd-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
@@ -125,6 +129,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 .metro-start{grid-column:3;grid-row:1/3;padding:6px 4px;background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;letter-spacing:.04em;transition:all .2s;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;}
 .metro-start.on{background:var(--accent);border-color:var(--accent);color:var(--bg);}
 .metro-start:hover:not(.on){border-color:var(--accent);color:var(--accent);}
+
+/* 비트 플래시 바 */
+#beat-flash{position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);opacity:0;pointer-events:none;z-index:100;transition:opacity .04s;}
+#beat-flash.lit{opacity:.85;}
 
 /* Play 화면 */
 #play-cards{display:flex;flex-direction:column;flex:1;min-height:0;gap:var(--gap);width:100%;max-width:340px;}
@@ -386,12 +394,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <div class="scard-inner">
         <div class="beat-vis-wrap" id="beat-vis-p"></div>
         <div class="metro-bpm-row">
-          <div class="bpm-num-el" id="bpm-num">100</div>
+          <div class="bpm-num-wrap">
+            <div class="bpm-num-el" id="bpm-num">100</div>
+            <span class="bpm-hint">↕ drag</span>
+          </div>
           <div class="metro-adj">
             <button class="adj-btn" onclick="adjBPM(-1)">−</button>
             <button class="adj-btn" onclick="adjBPM(+1)">+</button>
             <button class="tap-btn" onclick="tapTempo()">Tap Tempo</button>
           </div>
+        </div>
+        <div class="metro-vol-row">
+          <span class="metro-vol-lbl">Click</span>
+          <input type="range" id="metro-vol" min="0" max="1" step="0.05" value="0.6" oninput="setMetroVol(+this.value)">
         </div>
         <div class="metro-bottom">
           <div class="ts-grid" id="ts-grid-p">
@@ -476,12 +491,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="scard-inner">
       <div class="beat-vis-wrap" id="beat-vis-tm"></div>
       <div class="metro-bpm-row">
-        <div class="bpm-num-el" id="bpm-num-tm">100</div>
+        <div class="bpm-num-wrap">
+          <div class="bpm-num-el" id="bpm-num-tm">100</div>
+          <span class="bpm-hint">↕ drag</span>
+        </div>
         <div class="metro-adj">
           <button class="adj-btn" onclick="adjBPM(-1)">−</button>
           <button class="adj-btn" onclick="adjBPM(+1)">+</button>
           <button class="tap-btn" onclick="tapTempo()">Tap Tempo</button>
         </div>
+      </div>
+      <div class="metro-vol-row">
+        <span class="metro-vol-lbl">Click</span>
+        <input type="range" id="metro-vol-tm" min="0" max="1" step="0.05" value="0.6" oninput="setMetroVol(+this.value)">
       </div>
       <div class="metro-bottom">
         <div class="ts-grid" id="ts-grid-tm">
@@ -506,6 +528,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   </div>
 </div>
 
+<div id="beat-flash"></div>
 <div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
 <script>
@@ -758,21 +781,41 @@ function resizeTMCanvas(){const th=document.getElementById('tuner-history-tm');i
 document.addEventListener('visibilitychange',async()=>{if(S.running&&document.visibilityState==='visible'){try{A.wakeLock=await navigator.wakeLock?.request('screen');}catch(e){}}});
 
 let tapTimes=[];
+let _metroVol=0.6;
+function setMetroVol(v){_metroVol=v;document.querySelectorAll('#metro-vol,#metro-vol-tm').forEach(el=>{if(el)el.value=v;});}
+
 // 붓점: 4분음표를 3등분 (♩. = ♩×1.5 = ♪×3)
 function getTickInterval(){const b=60/S.bpm;if(S.timeSig===6)return b/2;if(S.subDiv==='d')return A.metroTick%2===0?b*3/4:b*1/4;return b/S.subDiv;}
 function getTotalTicks(){return S.subDiv==='d'?S.timeSig*2:S.timeSig*S.subDiv;}
 function scheduleClick(time,tick){
   if(!A.micAC)return;const osc=A.micAC.createOscillator(),gain=A.micAC.createGain();osc.connect(gain);gain.connect(A.micAC.destination);
   let freq,vol;if(S.subDiv==='d'){const b1=tick===0,bs=tick%2===0;freq=b1?1500:bs?1000:700;vol=b1?.6:bs?.38:.16;}else{const b1=tick===0,ib=tick%S.subDiv===0;freq=b1?1500:ib?1000:700;vol=b1?.6:ib?.38:.16;}
+  vol*=_metroVol/.6; // 볼륨 슬라이더 반영
   gain.gain.setValueAtTime(vol,time);gain.gain.exponentialRampToValueAtTime(.001,time+.04);osc.frequency.value=freq;osc.onended=()=>{osc.disconnect();gain.disconnect();};osc.start(time);osc.stop(time+CONFIG.metro.clickDurS);
-  const dl=Math.max(0,(time-A.micAC.currentTime)*1000);setTimeout(()=>litBeat(tick),dl);setTimeout(()=>{A.isClick=true;},dl-5);setTimeout(()=>{A.isClick=false;},dl+CONFIG.metro.muteTunerMs);
+  const dl=Math.max(0,(time-A.micAC.currentTime)*1000);
+  setTimeout(()=>{litBeat(tick);flashBeat(tick);},dl);
+  setTimeout(()=>{A.isClick=true;},dl-5);setTimeout(()=>{A.isClick=false;},dl+CONFIG.metro.muteTunerMs);
 }
 function metroSched(){while(A.metroNext<A.micAC.currentTime+CONFIG.metro.lookaheadS){scheduleClick(A.metroNext,A.metroTick);A.metroNext+=getTickInterval();A.metroTick=(A.metroTick+1)%getTotalTicks();}A.metroTimer=setTimeout(metroSched,CONFIG.metro.intervalMs);}
 function startMetro(){if(!A.micAC)return;S.metroPlaying=true;A.metroTick=0;A.metroNext=A.micAC.currentTime+.05;metroSched();updateMetroBtn(true);buildBeatVis();}
 function stopMetro(){S.metroPlaying=false;clearTimeout(A.metroTimer);updateMetroBtn(false);document.querySelectorAll('.bd').forEach(d=>d.classList.remove('lit-a','lit-b','lit-s'));}
 function toggleMetro(){if(!A.micAC){toast('마이크를 먼저 켜주세요');return;}S.metroPlaying?stopMetro():startMetro();}
 function updateMetroBtn(on){['metro-start-p','metro-start-tm'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML=on?'Stop<br>Metronome':'Start<br>Metronome';el.classList.toggle('on',on);});}
-function setBPM(v){S.bpm=Math.max(CONFIG.metro.bpmMin,Math.min(CONFIG.metro.bpmMax,v));document.querySelectorAll('#bpm-num,#bpm-num-tm').forEach(el=>{if(el)el.textContent=S.bpm;});if(S.metroPlaying){stopMetro();startMetro();}}
+function flashBeat(tick){
+  const el=document.getElementById('beat-flash');if(!el)return;
+  el.classList.add('lit');
+  clearTimeout(el._ft);el._ft=setTimeout(()=>el.classList.remove('lit'),tick===0?120:80);
+}
+
+let _bpmDebounce=null;
+function setBPM(v){
+  S.bpm=Math.max(CONFIG.metro.bpmMin,Math.min(CONFIG.metro.bpmMax,v));
+  document.querySelectorAll('#bpm-num,#bpm-num-tm').forEach(el=>{if(el)el.textContent=S.bpm;});
+  if(S.metroPlaying){
+    clearTimeout(_bpmDebounce);
+    _bpmDebounce=setTimeout(()=>{stopMetro();startMetro();},300);
+  }
+}
 function adjBPM(d){setBPM(S.bpm+d);}
 function setTS(v){
   S.timeSig=v;
