@@ -169,7 +169,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .rec-item{background:var(--surface2);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;cursor:pointer;}
 .rec-item-detail{display:none;margin-top:8px;}
 .rec-item-detail.open{display:flex;flex-direction:column;gap:6px;}
-audio{width:100%;height:36px;border-radius:6px;outline:none;}
 .rec-item-info{display:flex;justify-content:space-between;align-items:center;}
 .rec-item-name{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);}
 .rec-item-dur{font-size:10px;color:var(--muted);}
@@ -193,7 +192,6 @@ audio{width:100%;height:36px;border-radius:6px;outline:none;}
 
 /* 태블릿 */
 /* safe area */
-.screen-wrap{padding-bottom:max(.8rem,env(safe-area-inset-bottom));}
 #app{padding-bottom:max(.8rem,env(safe-area-inset-bottom));}
 
 /* 아이폰 가로 차단 */
@@ -277,12 +275,12 @@ audio{width:100%;height:36px;border-radius:6px;outline:none;}
       <div class="card-body" style="flex:1;min-height:0;">
         <div id="tuner-note-row">
           <div id="tuner-note-left">
-            <div id="tuner-note">--</div>
+            <div id="tuner-note"></div>
             <div id="tuner-oct"></div>
           </div>
           <div id="tuner-right">
-            <span id="tuner-cents">-- ¢</span>
-            <span id="tuner-hz">-- Hz</span>
+            <span id="tuner-cents"></span>
+            <span id="tuner-hz"></span>
           </div>
         </div>
         <canvas id="tuner-history"></canvas>
