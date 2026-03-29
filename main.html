@@ -871,8 +871,7 @@ function startRec(){
   };
   A.recorder.start();A.recording=true;
   const rb=document.getElementById('rec-hdr-btn');if(rb)rb.classList.add('rec-on');
-  const rhdOn=document.getElementById('rec-hdr-dot');if(rhdOn)rhdOn.style.background='var(--red)';
-  const rhd=document.getElementById('rec-hdr-dot');if(rhd){rhd.style.background='var(--red)';rhd.style.animation='pulse 1s infinite';}
+  const rhdOn=document.getElementById('rec-hdr-dot');if(rhdOn){rhdOn.style.background='var(--red)';rhdOn.style.animation='pulse 1s infinite';}
 
   document.getElementById('rec-toggle-btn').textContent='녹음 중지';
   document.getElementById('rec-toggle-btn').style.cssText='color:var(--red);border-color:var(--red);';
@@ -881,8 +880,7 @@ function startRec(){
 function stopRec(){
   A.recorder?.stop();A.recording=false;
   const rb2=document.getElementById('rec-hdr-btn');if(rb2)rb2.classList.remove('rec-on');
-  const rhdOff=document.getElementById('rec-hdr-dot');if(rhdOff)rhdOff.style.background='var(--muted)';
-  const rhd2=document.getElementById('rec-hdr-dot');if(rhd2){rhd2.style.background='var(--muted)';rhd2.style.animation='none';}
+  const rhdOff=document.getElementById('rec-hdr-dot');if(rhdOff){rhdOff.style.background='var(--muted)';rhdOff.style.animation='none';}
 
   document.getElementById('rec-toggle-btn').textContent='녹음 시작';
   document.getElementById('rec-toggle-btn').style.cssText='';
@@ -931,6 +929,8 @@ function recSeek(idx){
   if(sk&&a.duration)a.currentTime=+sk.value;
 }
 function renderRecList(){
+  // 캐시 초기화 (인덱스 재정렬)
+  Object.keys(_recPlayers).forEach(i=>{_recPlayers[i].pause();delete _recPlayers[i];});
   const list=document.getElementById('rec-list');list.innerHTML='';
   recItems.forEach((item,idx)=>{
     const div=document.createElement('div');div.className='rec-item';
@@ -961,7 +961,7 @@ function toggleRecItem(idx){
   document.getElementById('rec-detail-'+idx)?.classList.toggle('open');
 }
 function deleteRec(idx){
-  if(_recPlayers[idx]){_recPlayers[idx].pause();delete _recPlayers[idx];}
+  if(_recPlayers[idx]){try{_recPlayers[idx].pause();}catch(e){}delete _recPlayers[idx];}
   URL.revokeObjectURL(recItems[idx].url);recItems.splice(idx,1);renderRecList();
 }
 
