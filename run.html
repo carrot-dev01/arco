@@ -106,8 +106,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #metro-card.lit-weak{border-color:rgba(204,0,0,.45)!important;}
 
 #metro-hdr{display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:10px 14px;border-bottom:2px solid var(--border);gap:10px;}
-#metro-hdr-label{font-family:'DM Mono',monospace;font-size:20px;color:var(--text);font-weight:700;white-space:nowrap;cursor:pointer;padding-right:10px;}
-#metro-hdr-tap-zone{position:absolute;left:0;top:0;width:33%;height:100%;}
+#metro-hdr-label{font-family:'DM Mono',monospace;font-size:20px;color:var(--text);font-weight:700;white-space:nowrap;cursor:ns-resize;touch-action:none;user-select:none;padding-right:10px;}
 #beat-vis{display:flex;align-items:center;justify-content:center;gap:7px;height:22px;}
 .bd{border-radius:50%;background:var(--border);transition:background .04s,transform .04s,box-shadow .04s;flex-shrink:0;}
 .bd.beat{width:15px;height:15px;}.bd.subdiv{width:8px;height:8px;}
@@ -160,11 +159,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .menu-sec{display:flex;flex-direction:column;gap:10px;}
 .menu-sec-title{font-size:16px;color:var(--text);font-weight:700;padding-bottom:9px;border-bottom:2px solid var(--text);}
 /* 타이머 접기 */
-.menu-sec-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:9px;border-bottom:2px solid var(--text);}
-.menu-sec-hdr-title{font-size:16px;color:var(--text);font-weight:700;}
-.menu-sec-toggle{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 2px;line-height:1;}
-#timer-collapsible{display:flex;flex-direction:column;gap:10px;overflow:hidden;transition:max-height .25s ease,opacity .2s;}
-#timer-collapsible.collapsed{max-height:0!important;opacity:0;pointer-events:none;}
+/* 타이머 항상 펼침 */
 .timer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .timer-box{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;}
 .timer-lbl{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-bottom:5px;}
@@ -178,7 +173,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 .rec-item-btn{flex:1;padding:9px;background:transparent;border:1.5px solid var(--border);border-radius:8px;color:var(--muted);font-size:17px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;}
 .rec-play-btn{width:44px;height:44px;background:transparent;border:none;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .rec-seek{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
-.rec-seek::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#111;border:2px solid var(--bg);cursor:pointer;}
+.rec-seek::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--text)!important;border:2px solid var(--bg);cursor:pointer;}
 .rec-time{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap;min-width:38px;text-align:right;}
 .rec-player{display:flex;flex-direction:column;gap:7px;}
 .rec-player-top{display:flex;align-items:center;gap:8px;}
@@ -282,7 +277,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           <button id="metro-play-hdr-btn" onclick="toggleMetro()">■</button>
           <button id="metro-collapse-btn" onclick="toggleMetroCollapse()">▼</button>
         </div>
-        <div id="metro-hdr-tap-zone"></div>
       </div>
       <div id="metro-body">
         <div id="metro-bpm-row">
@@ -369,11 +363,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     <!-- 2. 기준음 -->
     <div class="menu-sec">
       <div class="menu-sec-title">기준음</div>
-      <div class="ref-oct-row" style="margin-bottom:0;">
-        <span class="ref-oct-lbl">옥타브</span>
-        <button class="ref-oct-btn" onclick="adjRefOct(-1)">−</button>
-        <span id="ref-oct-num-menu">4</span>
-        <button class="ref-oct-btn" onclick="adjRefOct(1)">+</button>
+      <!-- 옥타브 + 소리끄기 한 줄 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="ref-oct-lbl">옥타브</span>
+          <button class="ref-oct-btn" onclick="adjRefOct(-1)">−</button>
+          <span id="ref-oct-num-menu">4</span>
+          <button class="ref-oct-btn" onclick="adjRefOct(1)">+</button>
+        </div>
+        <button onclick="stopRefNoteBtn()" style="padding:9px 16px;background:transparent;border:1.5px solid var(--border);border-radius:9px;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:14px;cursor:pointer;font-weight:700;white-space:nowrap;">소리 끄기</button>
       </div>
       <div class="ref-note-grid" style="margin-bottom:7px;">
         <button class="m-seg ref-note-btn" data-note="도" onclick="playRef('도')">도</button>
@@ -392,24 +390,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
         <button class="m-seg ref-note-btn" data-note="솔♯" onclick="playRef('솔♯')">솔♯</button>
         <button class="m-seg ref-note-btn" data-note="라♯" onclick="playRef('라♯')">라♯</button>
       </div>
-      <button onclick="stopRefNoteBtn()" style="padding:12px;background:transparent;border:1.5px solid var(--border);border-radius:10px;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:15px;cursor:pointer;text-align:center;width:100%;font-weight:700;">소리 끄기</button>
     </div>
 
-    <!-- 3. 타이머 (접힘) -->
+    <!-- 3. 타이머 (항상 펼침) -->
     <div class="menu-sec">
-      <div class="menu-sec-hdr">
-        <span class="menu-sec-hdr-title">타이머</span>
-        <button class="menu-sec-toggle" id="timer-toggle-collapse" onclick="toggleTimerCollapse()">▶</button>
+      <div class="menu-sec-title">타이머</div>
+      <div class="timer-grid">
+        <div class="timer-box"><div class="timer-lbl">연습 시간</div><div class="timer-val" id="timer-elapsed">00:00</div></div>
+        <div class="timer-box"><div class="timer-lbl">연주 시간</div><div class="timer-val" id="timer-detected">00:00</div></div>
       </div>
-      <div id="timer-collapsible" class="collapsed" style="max-height:300px;">
-        <div class="timer-grid">
-          <div class="timer-box"><div class="timer-lbl">연습 시간</div><div class="timer-val" id="timer-elapsed">00:00</div></div>
-          <div class="timer-box"><div class="timer-lbl">연주 시간</div><div class="timer-val" id="timer-detected">00:00</div></div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="menu-btn-sm" id="timer-toggle-btn" onclick="toggleTimer()" style="flex:1;">시작</button>
-          <button class="menu-btn-sm" onclick="resetTimer()" style="flex:1;">초기화</button>
-        </div>
+      <div style="display:flex;gap:8px;">
+        <button class="menu-btn-sm" id="timer-toggle-btn" onclick="toggleTimer()" style="flex:1;">시작</button>
+        <button class="menu-btn-sm" onclick="resetTimer()" style="flex:1;">초기화</button>
       </div>
     </div>
 
@@ -431,9 +423,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
       <span class="setting-desc">초록으로 표시되는 허용 범위 (cents)</span>
       <div class="step-row" id="cents-steps">
         <button class="step-btn" data-v="5" onclick="setCentsStep(5)">±5</button>
-        <button class="step-btn" data-v="8" onclick="setCentsStep(8)">±8</button>
-        <button class="step-btn on" data-v="12" onclick="setCentsStep(12)">±12</button>
-        <button class="step-btn" data-v="18" onclick="setCentsStep(18)">±18</button>
+        <button class="step-btn on" data-v="10" onclick="setCentsStep(10)">±10</button>
+        <button class="step-btn" data-v="15" onclick="setCentsStep(15)">±15</button>
+        <button class="step-btn" data-v="20" onclick="setCentsStep(20)">±20</button>
         <button class="step-btn" data-v="25" onclick="setCentsStep(25)">±25</button>
       </div>
     </div>
@@ -497,7 +489,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
 const CFG={
   detect:{fftSize:4096,fftSmooth:.88,hzMin:80,hzMax:4800,noiseFloor:-52,peakMargin:4,harmonicDrop:35,harmonicMin:2,holdFrames:60},
   yamnet:{intervalMs:975,threshold:.50,sampleRate:16000,inputLen:15600,stringIdx:new Set([132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147])},
-  tuner:{fftSize:4096,yinThreshold:.10,rmsMin:.005,lockFrames:2,smoothing:.18,histLen:180,tolCents:12},
+  tuner:{fftSize:4096,yinThreshold:.10,rmsMin:.005,lockFrames:2,smoothing:.18,histLen:180,tolCents:10},
   metro:{bpmMin:20,bpmMax:220,lookaheadS:.4,intervalMs:25,clickDurS:.05,muteTunerMs:70,swipePxPerBpm:2},
   inactiveMs:15*60*1000,refMin:432,refMax:448,refDefault:442,
 };
@@ -511,7 +503,6 @@ const S={micReady:false,running:false,strOK:false,detFreq:0,holdFrames:0,yamnetO
 const A={micStream:null,micAC:null,analyserFFT:null,analyserTD:null,fftBuf:null,tdBuf:null,binCount:0,sampleRate:44100,scriptProc:null,pcm16k:new Float32Array(31200),pcmPos:0,isClick:false,wakeLock:null,yamnet:null,yamnetReady:false,yamnetRunning:false,metroTimer:null,metroNext:0,metroTick:0,recorder:null,recChunks:[],recording:false,recStartTime:0,recTimerInt:null,refOsc:null,refGain:null,refOctave:4};
 const recItems=[];
 let _metroCollapsed=false;
-let _timerCollapsed=true;
 let _wakeLockEnabled=true;
 let _aiModeEnabled=true;
 
@@ -538,15 +529,6 @@ function setSmoothStep(v){
 }
 function openSettings(){document.getElementById('settings-page').classList.add('open');}
 function closeSettings(){document.getElementById('settings-page').classList.remove('open');}
-
-// ── 타이머 섹션 접기 ──
-function toggleTimerCollapse(){
-  _timerCollapsed=!_timerCollapsed;
-  const el=document.getElementById('timer-collapsible');
-  const btn=document.getElementById('timer-toggle-collapse');
-  el.classList.toggle('collapsed',_timerCollapsed);
-  btn.textContent=_timerCollapsed?'▶':'▼';
-}
 
 // ── 팝업 ──
 function showMicPopup(){document.getElementById('mic-popup-bg').classList.add('show');}
@@ -608,7 +590,8 @@ function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60)
 // ── REC 헤더 시간 ──
 function startRecTimer(){
   clearInterval(A.recTimerInt);let s=0;
-  const el=document.getElementById('hdr-rec-time');el.classList.add('show');
+  const el=document.getElementById('hdr-rec-time');
+  el.textContent=fmt(0);el.classList.add('show');
   A.recTimerInt=setInterval(()=>{s++;el.textContent=fmt(s);},1000);
 }
 function stopRecTimer(){clearInterval(A.recTimerInt);const el=document.getElementById('hdr-rec-time');el.classList.remove('show');el.textContent='0:00';}
@@ -726,7 +709,7 @@ function drawHistory(){
     const x1=W/2+Math.max(-50,Math.min(50,v1))*ppc;
     const alpha=.22+(i/(N-1))*.78;
     c.globalAlpha=alpha;
-    c.strokeStyle=Math.abs(v0)<=tol?'#4ade80':'#666666';
+    c.strokeStyle=Math.abs(v0)<=tol?'#4ade80':'#ffffff';
     c.beginPath();c.moveTo(x0,y0);c.lineTo(x1,y1);c.stroke();
   }
   c.globalAlpha=1;c.restore();
@@ -735,40 +718,20 @@ function drawHistory(){
 // ── 메트로놈 ──
 let _metroVol=0.7,_bpmDebounce=null;
 // 탭 BPM
-// ── BPM 탭탭 (헤더 왼쪽 1/3 탭존) ──
-let _tapTimes=[];
+// ── BPM 드래그 (헤더 라벨 + BPM 숫자 모두) ──
 (function(){
-  const tapZone=document.getElementById('metro-hdr-tap-zone');
-  function handleTap(){
-    const now=Date.now();
-    _tapTimes.push(now);
-    _tapTimes=_tapTimes.filter(t=>now-t<3000);
-    // BPM scale 피드백
-    const lbl=document.getElementById('metro-hdr-label');
-    lbl.style.transform='scale(1.18)';lbl.style.transition='transform .08s';
-    setTimeout(()=>{lbl.style.transform='';},120);
-    // 3탭 이상부터 BPM 반영
-    if(_tapTimes.length>=3){
-      const intervals=[];
-      for(let i=1;i<_tapTimes.length;i++)intervals.push(_tapTimes[i]-_tapTimes[i-1]);
-      const avg=intervals.reduce((a,b)=>a+b,0)/intervals.length;
-      setBPM(Math.round(60000/avg));
-    }
+  // 재생 중: 헤더 라벨 영역 / 정지 중: bpm-wrap 영역
+  function attachDrag(el){
+    let sy=0,sb=0,sw=false;
+    el.addEventListener('mousedown',e=>{sw=true;sy=e.clientY;sb=S.bpm;e.preventDefault();});
+    window.addEventListener('mousemove',e=>{if(!sw)return;setBPM(sb+Math.round((sy-e.clientY)/CFG.metro.swipePxPerBpm));});
+    window.addEventListener('mouseup',()=>{sw=false;});
+    el.addEventListener('touchstart',e=>{sw=true;sy=e.touches[0].clientY;sb=S.bpm;},{passive:true});
+    window.addEventListener('touchmove',e=>{if(!sw)return;setBPM(sb+Math.round((sy-e.touches[0].clientY)/CFG.metro.swipePxPerBpm));},{passive:true});
+    window.addEventListener('touchend',()=>{sw=false;});
   }
-  tapZone.addEventListener('click',handleTap);
-  tapZone.addEventListener('touchend',e=>{e.preventDefault();handleTap();},{passive:false});
-})();
-
-// ── BPM 드래그 (metro-bpm-wrap) ──
-(function(){
-  const el=document.getElementById('metro-bpm-wrap');
-  let sy=0,sb=0,sw=false;
-  el.addEventListener('mousedown',e=>{sw=true;sy=e.clientY;sb=S.bpm;e.preventDefault();});
-  window.addEventListener('mousemove',e=>{if(!sw)return;setBPM(sb+Math.round((sy-e.clientY)/CFG.metro.swipePxPerBpm));});
-  window.addEventListener('mouseup',()=>{sw=false;});
-  el.addEventListener('touchstart',e=>{sw=true;sy=e.touches[0].clientY;sb=S.bpm;},{passive:true});
-  window.addEventListener('touchmove',e=>{if(!sw)return;setBPM(sb+Math.round((sy-e.touches[0].clientY)/CFG.metro.swipePxPerBpm));},{passive:true});
-  window.addEventListener('touchend',()=>{sw=false;});
+  attachDrag(document.getElementById('metro-bpm-wrap'));
+  attachDrag(document.getElementById('metro-hdr-label'));
 })();
 
 function setMetroVol(v){_metroVol=v;}
@@ -882,16 +845,59 @@ function recSeek(idx){const sk=document.getElementById('rec-seek-'+idx),a=getRec
 function renderRecList(){
   Object.keys(_recPlayers).forEach(i=>{_recPlayers[i].pause();delete _recPlayers[i];});
   const list=document.getElementById('rec-list');list.innerHTML='';
-  recItems.forEach((item,idx)=>{
+  if(recItems.length===0)return;
+
+  // 최신 1개 - 항상 펼쳐서 표시
+  const renderItem=(item,idx,defaultOpen)=>{
     const div=document.createElement('div');div.className='rec-item';
     const m=Math.floor(item.dur/60),s=String(item.dur%60).padStart(2,'0');
     const _ext=item.mime&&item.mime.includes('mp4')?'m4a':'webm';
-    div.innerHTML=`<div onclick="toggleRecItem(${idx})" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;"><span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;">${item.name}</span><span style="font-size:13px;color:var(--muted);">${m}:${s}</span></div><div class="rec-item-detail" id="rec-detail-${idx}"><div class="rec-player"><div class="rec-player-top"><button class="rec-play-btn" id="rec-pb-${idx}" onclick="recPlayPause(${idx})">▶</button><input type="range" class="rec-seek" id="rec-seek-${idx}" value="0" min="0" step="0.01" oninput="recSeek(${idx})"><span class="rec-time" id="rec-time-${idx}">0:00</span></div><div class="rec-item-btns"><a class="rec-item-btn" href="${item.url}" download="gopractice_${item.name}.${_ext}">⬇</a><button class="rec-item-btn del" onclick="deleteRec(${idx})">🗑</button></div></div></div>`;
-    list.appendChild(div);
-  });
+    div.innerHTML=`
+      <div onclick="toggleRecItem(${idx})" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;">${item.name}</span>
+        <span style="font-size:13px;color:var(--muted);">${m}:${s}</span>
+      </div>
+      <div class="rec-item-detail${defaultOpen?' open':''}" id="rec-detail-${idx}">
+        <div class="rec-player">
+          <div class="rec-player-top">
+            <button class="rec-play-btn" id="rec-pb-${idx}" onclick="recPlayPause(${idx})">▶</button>
+            <input type="range" class="rec-seek" id="rec-seek-${idx}" value="0" min="0" step="0.01" oninput="recSeek(${idx})">
+            <span class="rec-time" id="rec-time-${idx}">00:00</span>
+          </div>
+          <div class="rec-item-btns">
+            <button class="rec-item-btn" onclick="openEditor(${idx})" style="font-size:12px;font-weight:700;letter-spacing:.04em;">편집</button>
+            <a class="rec-item-btn" href="${item.url}" download="gopractice_${item.name}.${_ext}">⬇</a>
+            <button class="rec-item-btn del" onclick="deleteRec(${idx})">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    return div;
+  };
+
+  list.appendChild(renderItem(recItems[0],0,true));
+
+  // 나머지 - 접기 버튼으로 토글
+  if(recItems.length>1){
+    const oldWrap=document.createElement('div');
+    const toggleBtn=document.createElement('button');
+    toggleBtn.style.cssText='width:100%;padding:10px;background:transparent;border:1.5px solid var(--border);border-radius:9px;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;text-align:center;margin-top:4px;';
+    toggleBtn.textContent=`이전 녹음 ${recItems.length-1}개 보기`;
+    let oldOpen=false;
+    const oldList=document.createElement('div');oldList.style.display='none';
+    recItems.slice(1).forEach((_,i)=>oldList.appendChild(renderItem(recItems[i+1],i+1,false)));
+    toggleBtn.onclick=()=>{
+      oldOpen=!oldOpen;
+      oldList.style.display=oldOpen?'flex':'none';
+      oldList.style.flexDirection='column';oldList.style.gap='6px';
+      toggleBtn.textContent=oldOpen?`이전 녹음 접기`:`이전 녹음 ${recItems.length-1}개 보기`;
+    };
+    oldWrap.appendChild(toggleBtn);oldWrap.appendChild(oldList);
+    list.appendChild(oldWrap);
+  }
 }
 function toggleRecItem(idx){document.getElementById('rec-detail-'+idx)?.classList.toggle('open');}
 function deleteRec(idx){if(_recPlayers[idx]){try{_recPlayers[idx].pause();}catch(e){}delete _recPlayers[idx];}URL.revokeObjectURL(recItems[idx].url);recItems.splice(idx,1);renderRecList();}
+function openEditor(idx){toast('편집 기능은 다음 버전에 추가될 예정이에요');}
 
 // ── 메뉴 ──
 function toggleMenu(){
