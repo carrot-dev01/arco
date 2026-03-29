@@ -133,8 +133,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 /* ── 커스텀 오디오 플레이어 ── */
 .rec-player{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
 .rec-player-top{display:flex;align-items:center;gap:8px;}
-.rec-play-btn{width:32px;height:32px;background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
-.rec-play-btn:hover{border-color:var(--accent);color:var(--accent);}
+.rec-play-btn{width:36px;height:36px;background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
 .rec-seek{flex:1;height:3px;-webkit-appearance:none;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
 .rec-seek::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);cursor:pointer;}
 .rec-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;min-width:36px;text-align:right;}
@@ -889,6 +888,48 @@ function stopRec(){
   document.getElementById('rec-toggle-btn').style.cssText='';
   toast('녹음 완료');
 }
+function fmtT(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');}
+const _recPlayers={};
+function getRecPlayer(idx){
+  if(!_recPlayers[idx]){
+    const a=new Audio(recItems[idx].url);
+    a.ontimeupdate=()=>{
+      const sk=document.getElementById('rec-seek-'+idx);
+      const tm=document.getElementById('rec-time-'+idx);
+      if(sk&&a.duration){sk.max=a.duration;sk.value=a.currentTime;}
+      if(tm)tm.textContent=fmtT(a.currentTime);
+    };
+    a.onended=()=>{
+      const btn=document.getElementById('rec-pb-'+idx);
+      if(btn)btn.textContent='▶';
+      const sk=document.getElementById('rec-seek-'+idx);
+      if(sk)sk.value=0;
+      const tm=document.getElementById('rec-time-'+idx);
+      if(tm)tm.textContent='0:00';
+      a.currentTime=0;
+    };
+    _recPlayers[idx]=a;
+  }
+  return _recPlayers[idx];
+}
+function recPlayPause(idx){
+  const a=getRecPlayer(idx);
+  const btn=document.getElementById('rec-pb-'+idx);
+  Object.keys(_recPlayers).forEach(i=>{
+    if(+i!==idx&&!_recPlayers[i].paused){
+      _recPlayers[i].pause();
+      const b=document.getElementById('rec-pb-'+i);
+      if(b)b.textContent='▶';
+    }
+  });
+  if(a.paused){a.play();if(btn)btn.textContent='■';}
+  else{a.pause();if(btn)btn.textContent='▶';}
+}
+function recSeek(idx){
+  const sk=document.getElementById('rec-seek-'+idx);
+  const a=getRecPlayer(idx);
+  if(sk&&a.duration)a.currentTime=+sk.value;
+}
 function renderRecList(){
   const list=document.getElementById('rec-list');list.innerHTML='';
   recItems.forEach((item,idx)=>{
@@ -896,44 +937,31 @@ function renderRecList(){
     const m=Math.floor(item.dur/60),s=String(item.dur%60).padStart(2,'0');
     const _ext=item.mime&&item.mime.includes('mp4')?'m4a':'webm';
     div.innerHTML=`
-      <div class="rec-item-info" onclick="toggleRecItem(${idx})" style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="rec-item-name" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);">${item.name}</span>
-        <span class="rec-item-dur" style="font-size:10px;color:var(--muted);">${m}:${s}</span>
+      <div onclick="toggleRecItem(${idx})" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);">${item.name}</span>
+        <span style="font-size:10px;color:var(--muted);">${m}:${s}</span>
       </div>
       <div class="rec-item-detail" id="rec-detail-${idx}">
-        <div class="rec-item-btns" style="margin-top:6px;">
-          <button class="rec-item-btn" id="rec-play-btn-${idx}" onclick="toggleRecPlay(${idx},this)">▶</button>
-          <a class="rec-item-btn" href="${item.url}" download="gopractice_${item.name}.${_ext}" title="저장">⬇</a>
-          <button class="rec-item-btn del" onclick="deleteRec(${idx})" title="삭제">🗑</button>
+        <div class="rec-player">
+          <div class="rec-player-top">
+            <button class="rec-play-btn" id="rec-pb-${idx}" onclick="recPlayPause(${idx})">▶</button>
+            <input type="range" class="rec-seek" id="rec-seek-${idx}" value="0" min="0" step="0.01" oninput="recSeek(${idx})">
+            <span class="rec-time" id="rec-time-${idx}" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap;min-width:34px;text-align:right;">0:00</span>
+          </div>
+          <div class="rec-item-btns">
+            <a class="rec-item-btn" href="${item.url}" download="gopractice_${item.name}.${_ext}">⬇</a>
+            <button class="rec-item-btn del" onclick="deleteRec(${idx})">🗑</button>
+          </div>
         </div>
       </div>`;
     list.appendChild(div);
   });
 }
-function toggleRecPlay(idx, btn){
-  if(_recAudio && !_recAudio.paused){
-    _recAudio.pause();
-    document.querySelectorAll('[id^="rec-play-btn-"]').forEach(b=>b.textContent='▶');
-    return;
-  }
-  if(_recAudio){_recAudio.pause();_recAudio=null;}
-  document.querySelectorAll('[id^="rec-play-btn-"]').forEach(b=>b.textContent='▶');
-  const a=new Audio(recItems[idx].url);
-  _recAudio=a;
-  a.play();
-  if(btn)btn.textContent='■';
-  a.onended=()=>{if(btn)btn.textContent='▶';_recAudio=null;};
-  a.onpause=()=>{if(btn&&!a.ended)btn.textContent='▶';};
-}
 function toggleRecItem(idx){
-  const detail=document.getElementById('rec-detail-'+idx);
-  if(!detail)return;
-  detail.classList.toggle('open');
+  document.getElementById('rec-detail-'+idx)?.classList.toggle('open');
 }
 function deleteRec(idx){
-  // 재생 중이면 정지
-  const aud=document.getElementById('rec-audio-'+idx);
-  if(aud)aud.pause();
+  if(_recPlayers[idx]){_recPlayers[idx].pause();delete _recPlayers[idx];}
   URL.revokeObjectURL(recItems[idx].url);recItems.splice(idx,1);renderRecList();
 }
 
