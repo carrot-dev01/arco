@@ -399,7 +399,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
     <div class="menu-top">
       <span class="menu-title-txt">메뉴</span>
       <div style="display:flex;align-items:center;gap:8px;margin-right:-6px;">
-        <button onclick="openSettings()" style="padding:6px 12px;background:transparent;border:1.5px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.04em;">⚙ 설정</button>
+        <button onclick="openSettings()" style="padding:6px 12px;background:transparent;border:1.5px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.06em;display:flex;align-items:center;">⚙ 설정</button>
         <button class="menu-close-btn" onclick="toggleMenu()">✕</button>
       </div>
     </div>
@@ -806,12 +806,14 @@ function metroSched(){while(A.metroNext<A.micAC.currentTime+CFG.metro.lookaheadS
 function startMetro(){
   if(!A.micAC){toast('마이크를 먼저 켜주세요');return;}
   S.metroPlaying=true;A.metroTick=0;A.metroNext=A.micAC.currentTime+.05;metroSched();
-  // 패드 모드에서는 접지 않음
+  // 패드 모드에서는 body 접지 않음, body 재생버튼 ■로
   if(window.innerWidth<700){
     document.getElementById('metro-body').classList.add('collapsed');
     document.getElementById('metro-play-hdr-btn').style.display='flex';
     document.getElementById('metro-collapse-btn').style.display='none';
   }
+  document.getElementById('metro-play-btn').textContent='■';
+  document.getElementById('metro-play-btn').style.borderColor='var(--red)';
   buildBeatVis();
 }
 function stopMetro(){
@@ -821,6 +823,8 @@ function stopMetro(){
     document.getElementById('metro-play-hdr-btn').style.display='none';
     document.getElementById('metro-collapse-btn').style.display='flex';
   }
+  document.getElementById('metro-play-btn').textContent='▶';
+  document.getElementById('metro-play-btn').style.borderColor='var(--border)';
   document.querySelectorAll('.bd').forEach(d=>d.classList.remove('lit-a','lit-b','lit-s'));
 }
 function toggleMetro(){S.metroPlaying?stopMetro():startMetro();}
@@ -1003,7 +1007,7 @@ function openEditor(idx){
   // UI 리셋
   document.getElementById('editor-title-display').textContent=item.name;
   document.getElementById('ed-cur').textContent='00:00';
-  document.getElementById('ed-dur').textContent='--:--';
+  document.getElementById('ed-dur').textContent=item.dur?fmtT(item.dur):'--:--';
   document.getElementById('ed-play-btn').textContent='▶';
   document.getElementById('ed-speed').value=1.0;
   document.getElementById('ed-speed-val').textContent='1.0×';
@@ -1234,7 +1238,6 @@ function edCheckExportBtn(){
   const btn=document.getElementById('ed-export-btn');
   const active=_ed.ptA!==null&&_ed.ptB!==null;
   btn.style.color=active?'var(--text)':'var(--dim)';
-  btn.style.borderColor=active?'var(--border)':'var(--border)';
 }
 
 function edAddBookmark(){
@@ -1419,9 +1422,9 @@ document.getElementById('metro-body').style.maxHeight='420px';
         </div>
       </div>
       <!-- 줄2: 파일명: 값 ✎ — 여백 있게 -->
-      <div style="display:flex;align-items:center;gap:6px;padding:0 2px 16px;">
+      <div style="display:flex;align-items:center;gap:6px;padding:0 0 16px 4px;">
         <span style="font-size:12px;color:var(--dim);font-weight:500;flex-shrink:0;">파일명:</span>
-        <span id="editor-title-display" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
+        <span id="editor-title-display" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;"></span>
         <button onclick="edEditTitle()" style="background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;">✎</button>
       </div>
     </div>
