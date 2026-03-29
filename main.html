@@ -339,20 +339,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
     <button class="ref-oct-btn" onclick="adjRefOct(1)">+</button>
   </div>
   <div class="m-grid" style="margin-bottom:6px;">
-    <button class="m-seg" onclick="playRef('도')">도</button>
-    <button class="m-seg" onclick="playRef('레')">레</button>
-    <button class="m-seg" onclick="playRef('미')">미</button>
-    <button class="m-seg" onclick="playRef('파')">파</button>
-    <button class="m-seg" onclick="playRef('솔')">솔</button>
-    <button class="m-seg" onclick="playRef('라')">라</button>
-    <button class="m-seg" onclick="playRef('시')">시</button>
+    <button class="m-seg ref-note-btn" data-note="도" onclick="playRef('도')">도</button>
+    <button class="m-seg ref-note-btn" data-note="레" onclick="playRef('레')">레</button>
+    <button class="m-seg ref-note-btn" data-note="미" onclick="playRef('미')">미</button>
+    <button class="m-seg ref-note-btn" data-note="파" onclick="playRef('파')">파</button>
+    <button class="m-seg ref-note-btn" data-note="솔" onclick="playRef('솔')">솔</button>
+    <button class="m-seg ref-note-btn" data-note="라" onclick="playRef('라')">라</button>
+    <button class="m-seg ref-note-btn" data-note="시" onclick="playRef('시')">시</button>
   </div>
   <div class="m-grid">
-    <button class="m-seg" onclick="playRef('도♯')">도♯</button>
-    <button class="m-seg" onclick="playRef('레♯')">레♯</button>
-    <button class="m-seg" onclick="playRef('파♯')">파♯</button>
-    <button class="m-seg" onclick="playRef('솔♯')">솔♯</button>
-    <button class="m-seg" onclick="playRef('라♯')">라♯</button>
+    <button class="m-seg ref-note-btn" data-note="도♯" onclick="playRef('도♯')">도♯</button>
+    <button class="m-seg ref-note-btn" data-note="레♯" onclick="playRef('레♯')">레♯</button>
+    <button class="m-seg ref-note-btn" data-note="파♯" onclick="playRef('파♯')">파♯</button>
+    <button class="m-seg ref-note-btn" data-note="솔♯" onclick="playRef('솔♯')">솔♯</button>
+    <button class="m-seg ref-note-btn" data-note="라♯" onclick="playRef('라♯')">라♯</button>
   </div>
 </div>
 
@@ -399,20 +399,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
           <button class="ref-oct-btn" onclick="adjRefOct(1)">+</button>
         </div>
         <div class="m-grid">
-          <button class="m-seg" onclick="playRef('도')">도</button>
-          <button class="m-seg" onclick="playRef('레')">레</button>
-          <button class="m-seg" onclick="playRef('미')">미</button>
-          <button class="m-seg" onclick="playRef('파')">파</button>
-          <button class="m-seg" onclick="playRef('솔')">솔</button>
-          <button class="m-seg" onclick="playRef('라')">라</button>
-          <button class="m-seg" onclick="playRef('시')">시</button>
+          <button class="m-seg ref-note-btn" data-note="도" onclick="playRef('도')">도</button>
+          <button class="m-seg ref-note-btn" data-note="레" onclick="playRef('레')">레</button>
+          <button class="m-seg ref-note-btn" data-note="미" onclick="playRef('미')">미</button>
+          <button class="m-seg ref-note-btn" data-note="파" onclick="playRef('파')">파</button>
+          <button class="m-seg ref-note-btn" data-note="솔" onclick="playRef('솔')">솔</button>
+          <button class="m-seg ref-note-btn" data-note="라" onclick="playRef('라')">라</button>
+          <button class="m-seg ref-note-btn" data-note="시" onclick="playRef('시')">시</button>
         </div>
         <div class="m-grid">
-          <button class="m-seg" onclick="playRef('도♯')">도♯</button>
-          <button class="m-seg" onclick="playRef('레♯')">레♯</button>
-          <button class="m-seg" onclick="playRef('파♯')">파♯</button>
-          <button class="m-seg" onclick="playRef('솔♯')">솔♯</button>
-          <button class="m-seg" onclick="playRef('라♯')">라♯</button>
+          <button class="m-seg ref-note-btn" data-note="도♯" onclick="playRef('도♯')">도♯</button>
+          <button class="m-seg ref-note-btn" data-note="레♯" onclick="playRef('레♯')">레♯</button>
+          <button class="m-seg ref-note-btn" data-note="파♯" onclick="playRef('파♯')">파♯</button>
+          <button class="m-seg ref-note-btn" data-note="솔♯" onclick="playRef('솔♯')">솔♯</button>
+          <button class="m-seg ref-note-btn" data-note="라♯" onclick="playRef('라♯')">라♯</button>
         </div>
         <button onclick="stopRefNote()" style="padding:7px;background:transparent;border:.5px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:11px;cursor:pointer;text-align:center;width:100%;">소리 끄기</button>
       </div>
@@ -542,7 +542,6 @@ function closeMic(){
   document.getElementById('tuner-note').textContent='--';document.getElementById('tuner-note').className='';
   document.getElementById('tuner-oct').textContent='';document.getElementById('tuner-cents').textContent='-- ¢';document.getElementById('tuner-hz').textContent='-- Hz';
   const _ws2=document.getElementById('wakelock-status');if(_ws2)_ws2.textContent='꺼짐';
-  stopSessionTimer();
   drawGauge(null);
 }
 function toggleMicFromMenu(){
@@ -779,6 +778,9 @@ function adjRefOct(d){A.refOctave=Math.max(2,Math.min(6,A.refOctave+d));document
 function playRef(name){
   stopRefNote();if(!A.micAC)return;
   const semi=KR_MIDI[name];if(semi===undefined)return;
+  // 선택된 버튼 표시 — 메인패널/메뉴 모두
+  document.querySelectorAll('.ref-note-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.ref-note-btn[data-note="'+name+'"]').forEach(b=>b.classList.add('on'));
   const midi=semi+(A.refOctave+1)*12,freq=S.refHz*Math.pow(2,(midi-69)/12);
   A.refOsc=A.micAC.createOscillator();A.refGain=A.micAC.createGain();
   A.refOsc.type='triangle';A.refOsc.frequency.value=freq;
@@ -788,6 +790,7 @@ function playRef(name){
   // 계속 재생 — stopRefNote()로 끄기
 }
 function stopRefNote(){
+  document.querySelectorAll('.ref-note-btn').forEach(b=>b.classList.remove('on'));
   if(A.refOsc&&A.refGain&&A.micAC){
     try{A.refGain.gain.cancelScheduledValues(A.micAC.currentTime);A.refGain.gain.setValueAtTime(A.refGain.gain.value,A.micAC.currentTime);A.refGain.gain.exponentialRampToValueAtTime(.001,A.micAC.currentTime+.05);A.refOsc.stop(A.micAC.currentTime+.05);}catch(e){}
     A.refOsc=null;A.refGain=null;
