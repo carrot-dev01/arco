@@ -70,12 +70,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #tuner-card{flex:1;min-height:0;display:flex;flex-direction:column;transition:box-shadow .3s,border-color .3s;}
 #tuner-card.in-tune{border-color:var(--green)!important;box-shadow:0 0 0 2px var(--green),inset 0 0 40px color-mix(in srgb,var(--green) 8%,transparent);}
 #tuner-card .card-body{flex:1;min-height:0;}
-#tuner-note-row{display:flex;align-items:baseline;justify-content:space-between;}
+#tuner-note-row{display:flex;align-items:baseline;justify-content:space-between;min-height:80px;}
 #tuner-note-left{display:flex;align-items:baseline;gap:6px;}
 #tuner-note{font-family:'DM Mono',monospace;font-size:72px;font-weight:500;line-height:1;letter-spacing:-.04em;transition:color .1s;color:var(--text);}
 #tuner-note.tune{color:var(--green);}
 #tuner-oct{font-family:'DM Mono',monospace;font-size:20px;color:var(--muted);align-self:flex-start;margin-top:12px;}
-#tuner-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;align-self:flex-end;padding-bottom:4px;}
+#tuner-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;align-self:flex-end;padding-bottom:4px;min-height:40px;}
 #tuner-cents{font-family:'DM Mono',monospace;font-size:18px;color:var(--muted);}
 #tuner-hz{font-family:'DM Mono',monospace;font-size:12px;color:var(--dim);}
 #tuner-history{flex:1;min-height:100px;border-radius:8px;background:var(--bg);display:block;width:100%;}
