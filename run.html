@@ -941,7 +941,7 @@ function renderRecList(){
           </div>
           <div class="rec-item-btns">
             <button class="rec-item-btn" onclick="openEditor(${idx})" style="font-size:12px;font-weight:700;letter-spacing:.04em;">편집</button>
-            <a class="rec-item-btn" href="${item.url}" download="gopractice_${item.name}.${_ext}">⬇</a>
+            <a class="rec-item-btn" href="${item.url}" download="gopractice_${item.name}.${_ext}" style="font-size:12px;font-weight:700;letter-spacing:.04em;">다운로드</a>
             <button class="rec-item-btn del" onclick="deleteRec(${idx})">🗑</button>
           </div>
         </div>
@@ -985,7 +985,7 @@ function openEditor(idx){
   _ed.ptA=null;_ed.ptB=null;_ed.looping=false;_ed.bookmarks=[];_ed.dragging=null;
 
   const audio=new Audio(item.url);
-  audio.preservesPitch=true;audio.playbackRate=1.0;audio.preload='auto';audio.load();
+  audio.preservesPitch=true;audio.playbackRate=1.0;audio.preload='auto';
   _ed.audio=audio;
 
   const updateDur=()=>{
@@ -994,8 +994,18 @@ function openEditor(idx){
   };
   audio.addEventListener('loadedmetadata',updateDur);
   audio.addEventListener('durationchange',updateDur);
-  // 이미 로드된 경우 (캐시)
   if(audio.readyState>=1&&isFinite(audio.duration)&&audio.duration>0){updateDur();}
+
+  // canplaythrough: 준비되면 재생 버튼 활성화
+  const edReadyHandler=()=>{
+    const btn=document.getElementById('ed-play-btn');
+    if(btn){btn.textContent='▶';btn.style.opacity='1';btn.disabled=false;}
+    clearTimeout(_ed._readyTimeout);
+  };
+  // 3초 타임아웃 - 안 와도 그냥 활성화
+  _ed._readyTimeout=setTimeout(edReadyHandler,3000);
+  audio.addEventListener('canplaythrough',edReadyHandler,{once:true});
+
   // 다운로드 a 태그 설정
   const _ext=item.mime&&item.mime.includes('mp4')?'m4a':'webm';
   const _dlA=document.getElementById('ed-dl-btn');
@@ -1009,11 +1019,18 @@ function openEditor(idx){
     }
   });
 
+  // load() 명시 — 진입 즉시 버퍼링 시작
+  audio.load();
+
   // UI 리셋
   document.getElementById('editor-title-display').textContent=item.name;
   document.getElementById('ed-cur').textContent='00:00';
   document.getElementById('ed-dur').textContent=item.dur?fmtT(item.dur):'--:--';
-  document.getElementById('ed-play-btn').textContent='▶';
+  // 재생 버튼 로딩 중 dim - canplaythrough 오면 활성화
+  const _pb=document.getElementById('ed-play-btn');
+  _pb.textContent='▶';_pb.style.opacity='.4';_pb.disabled=true;
+  // 이미 재생 가능 상태면 즉시 활성화
+  if(audio.readyState>=3){_pb.style.opacity='1';_pb.disabled=false;}
   document.getElementById('ed-speed').value=1.0;
   document.getElementById('ed-speed-val').textContent='1.0×';
   document.getElementById('ed-progress').style.width='0%';
@@ -1035,6 +1052,7 @@ function openEditor(idx){
 
 function closeEditor(){
   if(_ed.audio){_ed.audio.pause();_ed.audio=null;}
+  clearTimeout(_ed._readyTimeout);
   document.getElementById('editor-page').style.display='none';
 }
 
