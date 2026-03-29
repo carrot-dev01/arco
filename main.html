@@ -566,8 +566,8 @@ function closeMic(){
   drawGauge(null);
 }
 function toggleMicFromMenu(){
-  if(S.micReady)closeMic();
-  else{showMicPopup();toggleMenu();}
+  if(S.micReady){closeMic();}
+  else{toggleMenu();openMic();}
   updateMicMenuBtn();
 }
 function updateMicUI(){
