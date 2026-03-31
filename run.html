@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -539,11 +538,8 @@ let _wakeLockEnabled=true;
 let _aiModeEnabled=true;
 
 async function loadYamnet(){try{let w=0;while(typeof tf==='undefined'&&w<10000){await new Promise(r=>setTimeout(r,200));w+=200;}A.yamnet=await tf.loadGraphModel('https://tfhub.dev/google/tfjs-model/yamnet/tfjs/1',{fromTFHub:true});A.yamnetReady=true;}catch(e){A.yamnetReady=true;}}
-if(window.Capacitor) {
-  loadYamnet(); openMic();
-} else {
-  loadYamnet(); showMicPopup();
-}
+loadYamnet();
+if(window.Capacitor){openMic();}else{showMicPopup();}
 
 // ── 설정 스텝 ──
 function setCentsStep(v){
