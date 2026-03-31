@@ -597,7 +597,7 @@ function closeMic(){
   stopRaf();stopSessionTimer();
   const nEl=document.getElementById('tuner-note');nEl.textContent='--';nEl.className='empty';
   const accEl=document.getElementById('tuner-acc');if(accEl)accEl.textContent='';
-  ['tuner-oct','tuner-cents','tuner-hz','tuner-enharmonic'].forEach(id=>document.getElementById(id).textContent='');
+  ['tuner-oct','tuner-cents','tuner-enharmonic'].forEach(id=>document.getElementById(id).textContent='');
   document.getElementById('tuner-card').classList.remove('in-tune');drawGauge(null);
   const mb=document.getElementById('hdr-mic-btn');if(mb)mb.style.display='flex';
   const rhb2=document.getElementById('rec-hdr-btn');if(rhb2)rhb2.style.opacity='.35';
