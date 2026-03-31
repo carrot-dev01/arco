@@ -530,7 +530,7 @@ const KR=['도','도♯','레','레♯','미','파','파♯','솔','솔♯','라
 const ENHARMONIC={'도♯':'레♭','레♯':'미♭','파♯':'솔♭','솔♯':'라♭','라♯':'시♭'};
 const KR_MIDI={'도':0,'도♯':1,'레':2,'레♯':3,'미':4,'파':5,'파♯':6,'솔':7,'솔♯':8,'라':9,'라♯':10,'시':11};
 
-const S={micReady:false,running:false,strOK:false,detFreq:0,holdFrames:0,yamnetOK:false,lastYamnetMs:0,smoothFreq:-1,lockedMidi:-1,lockCount:0,histData:new Array(CFG.tuner.histLen).fill(null),bpm:80,timeSig:4,subDiv:1,metroPlaying:false,refHz:CFG.refDefault,elapsedSec:0,detectedSec:0,timerRunning:false,lastActivityMs:Date.now()};
+const S={micReady:false,running:false,strOK:false,detFreq:0,holdFrames:0,yamnetOK:false,lastYamnetMs:0,smoothFreq:-1,lockedMidi:-1,lockCount:0,histData: [],bpm:80,timeSig:4,subDiv:1,metroPlaying:false,refHz:CFG.refDefault,elapsedSec:0,detectedSec:0,timerRunning:false,lastActivityMs:Date.now()};
 const A={micStream:null,micAC:null,analyserFFT:null,analyserTD:null,fftBuf:null,tdBuf:null,binCount:0,sampleRate:44100,scriptProc:null,pcm16k:new Float32Array(31200),pcmPos:0,isClick:false,wakeLock:null,yamnet:null,yamnetReady:false,yamnetRunning:false,metroTimer:null,metroNext:0,metroTick:0,recorder:null,recChunks:[],recording:false,recStartTime:0,recTimerInt:null,refOsc:null,refGain:null,refOctave:4};
 const recItems=[];
 let _metroCollapsed=false;
@@ -748,8 +748,8 @@ function drawHistory(){
   c.beginPath();c.moveTo(W/2,0);c.lineTo(W/2,H);c.stroke();c.setLineDash([]);
   c.lineWidth=2.5;c.lineCap='round';
   for(let i=0;i<N-1;i++){
-    const v0=S.histData[i],v1=S.histData[i+1];if(v0===null||v1===null)continue;
-    const y0=(i+.5)*rH, y1=(i+1.5)*rH;
+    const N=S.histData.length, segH=H/CFG.tuner.histLen;
+    const y0=H-(N-i-0.5)*segH, y1=H-(N-i-1.5)*segH;
     const x0=W/2+Math.max(-50,Math.min(50,v0))*ppc;
     const x1=W/2+Math.max(-50,Math.min(50,v1))*ppc;
     const alpha=.22+(i/(N-1))*.78;
