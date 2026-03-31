@@ -284,8 +284,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;heigh
           </div>
           <div id="tuner-enharmonic"></div>
           <div id="tuner-right">
-            <span id="tuner-cents"></span>
-            <span id="tuner-hz"></span>
+            <div style="display:flex;"><span id="tuner-cents" style="min-width:44px;text-align:right;"></span><span style="width:20px;"> ¢</span></div>
+            <div style="display:flex;"><span id="tuner-hz" style="min-width:44px;text-align:right;"></span><span style="width:24px;"> Hz</span></div>
           </div>
         </div>
         <canvas id="tuner-history"></canvas>
@@ -722,7 +722,7 @@ function updateTunerUI(raw){
   oEl.textContent=octave;
   eEl.textContent=ENHARMONIC[noteName]||'';
   document.getElementById('tuner-card').classList.toggle('in-tune',inTune);
-  cEl.textContent=(cents>0?'+':'')+cents+' ¢';hEl.textContent=Math.round(freq)+' Hz';
+  cEl.textContent=(cents>0?'+':'')+cents;hEl.textContent=Math.round(freq);
   S.histData.push(cents);S.histData.shift();drawGauge(cents);drawHistory();
 }
 
